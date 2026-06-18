@@ -1,0 +1,19 @@
+[package]
+name = "sentinel"
+edition = "2024.beta"
+version = "0.0.1"
+
+[dependencies]
+MoveStdlib = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/move-stdlib", rev = "mainnet", override = true }
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "mainnet", override = true }
+deepbook = { git = "https://github.com/MystenLabs/deepbookv3.git", subdir = "packages/deepbook", rev = "5e4d23801011004a88c39018e105ca02b705f449" }
+
+[dep-replacements.testnet]
+# testnet-v17.0.0: compiles current_version = 5, which is the highest version the live
+# DEEP_SUI pool currently ENABLES (allowed_versions = {1,2,3,4,5}). The newer on-chain
+# DeepBook upgrade 0x74cd… is v6 and is published but NOT yet enabled in pools, so linking
+# against it aborts with EPackageVersionDisabled (code 11). Pin to the enabled v5 package.
+deepbook = { git = "https://github.com/MystenLabs/deepbookv3.git", subdir = "packages/deepbook", rev = "5e4d23801011004a88c39018e105ca02b705f449", published-at = "0x22be4cade64bf2d02412c7e8d0e8beea2f78828b948118d46735315409371a3c", original-id = "0xfb28c4cbc6865bd1c897d26aecbe1f8792d1509a20ffec692c800660cbec6982" }
+
+[addresses]
+sentinel = "0x0"

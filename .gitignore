@@ -1,0 +1,5 @@
+# Move build artifacts — regenerate with `sui move build`.
+build/
+
+# OS
+.DS_Store
