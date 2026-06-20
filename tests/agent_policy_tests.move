@@ -91,6 +91,29 @@ fun cancel_releases_reservation() {
     clock.destroy_for_testing();
 }
 
+#[test, expected_failure(abort_code = 13)]
+fun cancel_with_unknown_order_id_aborts() {
+    let mut ctx = tx_context::new_from_hint(AGENT, 1, 0, 0, 0);
+    let clock = clock::create_for_testing(&mut ctx);
+    let mut policy = fresh_policy(&mut ctx);
+
+    agent_policy::validate_and_consume_for_testing(
+        &mut policy,
+        object::id_from_address(POOL),
+        object::id_from_address(BM),
+        7,
+        25,
+        25,
+        &clock,
+        &ctx,
+    );
+
+    agent_policy::release_reservation_for_testing(&mut policy, 8, &clock, &ctx);
+
+    agent_policy::destroy_for_testing(policy);
+    clock.destroy_for_testing();
+}
+
 #[test, expected_failure(abort_code = 2)]
 fun wrong_agent_cannot_consume_budget() {
     let mut ctx = tx_context::new_from_hint(@0xBAD, 2, 0, 0, 0);

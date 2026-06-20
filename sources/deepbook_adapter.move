@@ -40,17 +40,6 @@ public fun place_limit_order_with_policy<BaseAsset, QuoteAsset>(
     let pool_id = object::id(pool);
     let balance_manager_id = object::id(balance_manager);
 
-    agent_policy::validate_and_consume(
-        policy,
-        pool_id,
-        balance_manager_id,
-        (client_order_id as u128),
-        quote_amount,
-        max_slippage_bps,
-        clock,
-        ctx,
-    );
-
     let order_info = pool.place_limit_order<BaseAsset, QuoteAsset>(
         balance_manager,
         trade_proof,
@@ -65,13 +54,28 @@ public fun place_limit_order_with_policy<BaseAsset, QuoteAsset>(
         clock,
         ctx,
     );
+    let order_id = order_info.order_id();
+
+    // Reserve under DeepBook's real order_id, not the caller-chosen
+    // client_order_id. Cancels and modifies identify orders by order_id, so the
+    // policy reservation ledger must use the same key to release budget.
+    agent_policy::validate_and_consume(
+        policy,
+        pool_id,
+        balance_manager_id,
+        order_id,
+        quote_amount,
+        max_slippage_bps,
+        clock,
+        ctx,
+    );
 
     activity_log::emit_order_placed(
         agent_policy::id(policy),
         agent_policy::owner(policy),
         agent_policy::agent(policy),
         pool_id,
-        order_info.order_id(),
+        order_id,
         quote_amount,
         price,
         risk_score,
